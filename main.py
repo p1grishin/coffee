@@ -1,23 +1,28 @@
 import sys
 import sqlite3
+from pathlib import Path
 
-from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QDialog
+from UI.main_ui import Ui_Espresso
+from UI.addEditCoffeeForm import Ui_Dialog
 
 
-class EspressoWidget(QMainWindow):
+DB_FILE = Path('data') / 'coffee.sqlite'
+
+
+class EspressoWidget(QMainWindow, Ui_Espresso):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
 
-        self.db_name = 'coffee.sqlite'
+        # self.db_name = 'coffee.sqlite'
         self.load_and_display_data()
 
         self.add_btn.clicked.connect(self.add_form)
         self.edit_btn.clicked.connect(self.edit_form)
 
     def get_data_from_db(self):
-        con = sqlite3.connect(self.db_name)
+        con = sqlite3.connect(DB_FILE)
         cur = con.cursor()
         query = "SELECT * FROM coffee"
         cur.execute(query)
@@ -60,10 +65,10 @@ class EspressoWidget(QMainWindow):
 
 
 
-class AddEditCoffeeForm(QDialog):
+class AddEditCoffeeForm(QDialog, Ui_Dialog):
     def __init__(self, parent=None, mode=None, data=None):
         super().__init__(parent)
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
 
         self.mode = mode
         self.data = data
@@ -130,7 +135,7 @@ class AddEditCoffeeForm(QDialog):
             self.query(q, new_data)
 
     def query(self, q, d):
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect(DB_FILE)
         cur = con.cursor()
         cur.execute(q, d)
         con.commit()
